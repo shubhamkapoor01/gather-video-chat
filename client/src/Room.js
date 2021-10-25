@@ -46,7 +46,10 @@ function Room(props) {
                         peerID: userID,
                         peer,
                     })
-                    peers.push(peer);
+                    peers.push({
+						peerID: userID,
+						peer,
+					});
                 })
                 setPeers(peers);
             })
@@ -58,13 +61,27 @@ function Room(props) {
                     peer,
                 })
 
-                setPeers(users => [...users, peer]);
+				const peerObj = {
+					peer,
+					peerID: payload.callerID,
+				}
+                setPeers(users => [...users, peerObj]);
             });
 
             socket.on("receiving returned signal", payload => {
                 const item = peersRef.current.find(p => p.peerID === payload.id);
                 item.peer.signal(payload.signal);
             });
+
+			socket.on("user left", id => {
+				const peerObj = peersRef.current.find(p => p.peerID === id);
+				if (peerObj) {
+					peerObj.peer.destroy();
+				}
+				const peers = peersRef.current.filter(p => p.peerID !== id);
+				peersRef.current = peers;
+				setPeers(peers);
+			})
         })
 		
     }, []);
@@ -101,7 +118,6 @@ function Room(props) {
 
 	useEffect(() => {
 		socket.on('receive move', (data) => {
-			console.log(data);
 			setUsers(data);
 		})
 	}, [socket]);
@@ -154,14 +170,44 @@ function Room(props) {
 		}
 	}
 
+	const proximity = (peer) => {
+		if (peer.peerID === socket.id) {
+			return false;
+		}
+		let X, Y;
+		for (let i = 0; i < users.length; i ++) {
+			if (users[i].id === socket.id) {
+				X = users[i].x;
+				Y = users[i].y;
+				break;
+			}
+		}
+		for (let i = 0; i < users.length; i ++) {
+			if (users[i].id === peer.peerID) {
+				if (Math.abs(users[i].x - X) < 100 && Math.abs(users[i].y - Y) < 100) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+		return false;
+	}
+
     return (
 		<div className="room">
 			<div className="video-canvas">
 				<div className="videobox">
 					<StyledVideo muted ref={ userVideo } autoPlay playsInline />
-    	        	{ peers.map((peer, index) => {
+    	        	{ peers.map((peer) => {
     	        	    return (
-    	        	        <Video key={ index } peer={ peer } />
+							proximity(peer) ? (
+								<div>
+    	  		      	        	<Video key={ peer.peerID } peer={ peer.peer } />
+								</div>
+							) : (
+								<div></div>
+							)
     	        	    );
     	        	})}
 				</div>
