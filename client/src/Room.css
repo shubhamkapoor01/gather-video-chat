@@ -1,0 +1,25 @@
+.room {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+.videobox {
+	flex: 0.8;
+	margin: auto;
+}
+
+.chat {
+	flex: 0.2;
+}
+
+.video-canvas {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.canvas {
+	margin: 32px;
+	border: 1px solid black;
+}

@@ -1,0 +1,21 @@
+.joinRoom {
+	display: flex;
+	flex-direction: column;
+	width: max-content;
+	margin: auto;
+}
+
+h3 {
+	text-align: center;
+}
+
+input {
+	margin: 8px;
+	padding: 8px;
+	outline: none;
+}
+
+button {
+	margin: 8px;
+	padding: 8px;
+}
