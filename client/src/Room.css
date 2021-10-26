@@ -5,8 +5,15 @@
 }
 
 .videobox {
+	display: flex;
+	flex-direction: row;
 	flex: 0.8;
-	margin: auto;
+}
+
+.buttonbox {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
 }
 
 .chat {

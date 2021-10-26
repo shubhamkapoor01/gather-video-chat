@@ -28,7 +28,7 @@ const Video = (props) => {
 }
 
 function Room(props) {
-	const [users, setUsers] = useState([]);
+		const [users, setUsers] = useState([]);
     const [peers, setPeers] = useState([]);
     const userVideo = useRef();
     const peersRef = useRef([]);
@@ -36,8 +36,8 @@ function Room(props) {
 
     useEffect(() => {
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
-            userVideo.current.srcObject = stream;
-			socket.emit("join room", roomID);
+        userVideo.current.srcObject = stream;
+					socket.emit("join room", roomID);
             socket.on("all users", users => {
                 const peers = [];
                 users.forEach(userID => {
@@ -47,19 +47,19 @@ function Room(props) {
                         peer,
                     })
                     peers.push({
-						peerID: userID,
-						peer,
-					});
+										peerID: userID,
+										peer,
+									});
                 })
                 setPeers(peers);
             })
 
             socket.on("user joined", payload => {
-                const peer = addPeer(payload.signal, payload.callerID, stream);
-                peersRef.current.push({
-                    peerID: payload.callerID,
-                    peer,
-                })
+              const peer = addPeer(payload.signal, payload.callerID, stream);
+              peersRef.current.push({
+              	peerID: payload.callerID,
+                peer,
+              })
 
 				const peerObj = {
 					peer,
@@ -82,8 +82,7 @@ function Room(props) {
 				peersRef.current = peers;
 				setPeers(peers);
 			})
-        })
-		
+    })
     }, []);
 
     const createPeer = (userToSignal, callerID, stream) => {
@@ -194,22 +193,46 @@ function Room(props) {
 		return false;
 	}
 
+	const muteUnmute = (e) => {
+		const enabled = userVideo.current.srcObject.getAudioTracks()[0].enabled;
+		if (enabled) {
+			userVideo.current.srcObject.getAudioTracks()[0].enabled = false;	
+		} else {
+			userVideo.current.srcObject.getAudioTracks()[0].enabled = true;
+		}
+	}
+
+	const cameraOnOff = (e) => {
+		const enabled = userVideo.current.srcObject.getVideoTracks()[0].enabled;
+		if (enabled) {
+			userVideo.current.srcObject.getVideoTracks()[0].enabled = false;
+		} else {
+			userVideo.current.srcObject.getVideoTracks()[0].enabled = true;
+		}
+	}
+	const screenShare = (e) => {
+
+	}	
+
     return (
 		<div className="room">
 			<div className="video-canvas">
 				<div className="videobox">
+					<div className="buttonbox">
+						<button type="button" className="mute" onClick={ (e) => muteUnmute(e) }> Mute </button>
+						<button type="button" className="camera" onClick={ (e) => cameraOnOff(e) }> Camera </button>
+						<button type="button" className="screenshare" onClick={ (e) => screenShare(e) }> ScreenShare </button>
+					</div>
 					<StyledVideo muted ref={ userVideo } autoPlay playsInline />
-    	        	{ peers.map((peer) => {
-    	        	    return (
-							proximity(peer) ? (
-								<div>
-    	  		      	        	<Video key={ peer.peerID } peer={ peer.peer } />
-								</div>
-							) : (
-								<div></div>
-							)
-    	        	    );
-    	        	})}
+    	    	{ peers.map((peer) => {
+    	        return (
+								proximity(peer) ? (
+         	        <Video key={ peer.peerID } peer={ peer.peer } />
+								) : (
+									<div></div>
+								)
+    	      	);
+    	    	})}
 				</div>
 				<Sketch setup={ setup } draw={ draw } className="canvas" />
 			</div>
