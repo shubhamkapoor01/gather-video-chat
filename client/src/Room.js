@@ -210,8 +210,9 @@ function Room(props) {
 			userVideo.current.srcObject.getVideoTracks()[0].enabled = true;
 		}
 	}
-	const screenShare = (e) => {
 
+	const screenShare = (e) => {
+		
 	}	
 
     return (
