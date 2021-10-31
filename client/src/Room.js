@@ -150,7 +150,7 @@ function Room(props) {
 	}
 
 	const screenShare = (e) => {
-
+		// TODO
 	}
 
 	const proximity = (user, me) => {
