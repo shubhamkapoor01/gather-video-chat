@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
-// import Peer from "peerjs";
-import Peer from 'simple-peer';
+import Peer from "peerjs";
 import "./Room.css";
 import Sketch from 'react-p5';
 import styled from "styled-components";
@@ -18,9 +17,7 @@ const Video = (props) => {
 	const ref = useRef();
 
 	useEffect(() => {
-			props.peer.on("stream", stream => {
-					ref.current.srcObject = stream;
-			})
+		ref.current.srcObject = props.peer;
 	}, []);
 
 	return (
@@ -31,10 +28,9 @@ const Video = (props) => {
 function Room(props) {
 		const [users, setUsers] = useState([]);
 		const [peers, setPeers] = useState([]);
-		const [stream, setStream] = useState();
 		const [connected, setConnected] = useState({});
-		const myVideo = useRef();
-		const partnerVideo = useRef();
+		const myVideo = useRef(null);
+		const myPeer = useRef(null);
 		const peersRef = useRef([]);
     const roomID = props.match.params.roomID;
 
@@ -44,40 +40,26 @@ function Room(props) {
 				try {
 					const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
 					myVideo.current.srcObject = stream;
-					setStream(stream);
 				} catch (err) {
 					console.log(err)
 				}
 			}
+
 			getUserMedia();
 
-			socket.on('hey', data => {
-				const peer = new Peer({
-					initiator: false,
-					trickle: false,
-					stream: myVideo.current.srcObject,
-				})
-
-				let caller = data.from
-				peer.on('signal', data => {
-					socket.emit('accept call', { signal: data, to: caller })
-				})
-
-				peer.on('stream', stream => {
-					if (peersRef.current) {
-						peersRef.current.push({
-							peer
-						})
-						peersRef.current[peersRef.current.length - 1].srcObject = stream;
-					}
+			const peer = new Peer(socket.id);
+			
+			peer.on('call', call => {
+				call.answer(myVideo.current.srcObject);
+				call.on('stream', peerStream => {
+					peersRef.current.push(peerStream);
 					let temp = peers;
-					temp.push(peer);
-					temp[temp.length - 1].srcObject = stream;
+					temp.push(peerStream);
 					setPeers(temp);
 				})
-
-				peer.signal(data.signal)
 			})
+
+			myPeer.current = peer;
 		}, []);
 
 	useEffect(() => {
@@ -150,11 +132,21 @@ function Room(props) {
 	}
 
 	const muteUnmute = (e) => {
-
+		const enabled = myVideo.current.srcObject.getAudioTracks()[0].enabled;
+		if (enabled) {
+			myVideo.current.srcObject.getAudioTracks()[0].enabled = false;	
+		} else {
+			myVideo.current.srcObject.getAudioTracks()[0].enabled = true;
+		}
 	}
 
 	const cameraOnOff = (e) => {
-
+		const enabled = myVideo.current.srcObject.getVideoTracks()[0].enabled;
+		if (enabled) {
+			myVideo.current.srcObject.getVideoTracks()[0].enabled = false;
+		} else {
+			myVideo.current.srcObject.getVideoTracks()[0].enabled = true;
+		}
 	}
 
 	const screenShare = (e) => {
@@ -163,54 +155,26 @@ function Room(props) {
 
 	const proximity = (user, me) => {
 		if ((user.x - me.x) * (user.x - me.x) + (user.y - me.y) * (user.y - me.y) <= 10000) {
-			return true;
+			if (user.x >= me.x) {
+				return true;
+			} else {
+				return false;
+			}
 		} else {
 			return false;
 		}
 	}	
 
 	const connectPeer = (user, me) => {
-		console.log("connecting");
+		const call = myPeer.current.call(user.id, myVideo.current.srcObject)
 
-		const peer = new Peer({
-			initiator: true,
-			trickle: false,
-			config: {
-				'iceServers': [
-					{ 
-						url: 'stun:stun1.l.google.com:19302' 
-					},
-					{
-						url: 'turn:numb.viagenie.ca',
-						credential: 'muazkh',
-						username: 'webrtc@live.com'
-					}
-				]
-    	},
-			stream: myVideo.current.srcObject,
-		})
-
-		peer.on('signal', data => {
-			socket.emit('call user', { userToCall: user.id, signalData: data, from: me.id });
-		})
-		
-		peer.on('stream', stream => {
-			if (peersRef.current) {
-				peersRef.current.push({
-					peer
-				})
-				peersRef.current[peersRef.current.length - 1].srcObject = stream;
-			}
+		call.on('stream', peerStream => {
+			peersRef.current.push(peerStream)
 			let temp = peers;
-			temp.push(peer);
-			temp[temp.length - 1].srcObject = stream;
+			temp.push(peerStream);
 			setPeers(temp);
 		})
-
-		socket.on('call accepted', signal => {
-			peer.signal(signal);
-		})
-
+		
 		let temp = connected;
 		temp[user.id] = true;
 		setConnected(temp);
@@ -218,7 +182,7 @@ function Room(props) {
 	}
 
 	const disconnectPeer = (user) => {
-		console.log("disconnecting")
+		
 
 		let temp = connected;
 		delete temp[user.id]

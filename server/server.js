@@ -53,13 +53,7 @@ io.on('connection', socket => {
         io.to(data.id).emit('receive move', { all: tempPositions, me: me });
 	})
 
-    socket.on('call user', data => {
-        io.to(data.userToCall).emit('hey', { signal: data.signalData, from: data.from });
-    })
-
-    socket.on('accept call', data => {
-        io.to(data.to).emit('call accepted', data.signal);
-    })
+    
 
     socket.on('disconnect', () => {
         const roomID = socketToRoom[socket.id];
