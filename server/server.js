@@ -29,17 +29,9 @@ io.on('connection', socket => {
         }
 
         socketToRoom[socket.id] = roomID;
-        socketToPosition.push({ id: socket.id, room: roomID, x: 400, y: 100 })
-        const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
-        socket.emit("all users", usersInThisRoom);
-    });
-
-    socket.on("sending signal", payload => {
-        io.to(payload.userToSignal).emit('user joined', { signal: payload.signal, callerID: payload.callerID });
-    });
-
-    socket.on("returning signal", payload => {
-        io.to(payload.callerID).emit('receiving returned signal', { signal: payload.signal, id: socket.id });
+        data = { id: socket.id, room: roomID, x: 400, y: 100 }
+        socketToPosition.push(data)
+        io.to(socket.id).emit("my data", data);
     });
 
     socket.on('send message', (data) => {
@@ -47,15 +39,18 @@ io.on('connection', socket => {
 	})
 
 	socket.on('send move', (data) => {
+        let me = {};
         for (let i = 0; i < socketToPosition.length; i ++) {
             if (socketToPosition[i].id === data.id) {
                 socketToPosition[i].x = data.x;
                 socketToPosition[i].y = data.y;
+                me = socketToPosition[i];
                 break; 
             }
         }
         let tempPositions = socketToPosition.filter(pos => pos.room === data.room);
-		socket.broadcast.emit('receive move', tempPositions);
+		socket.broadcast.emit('receive move', { all: tempPositions, me: me});
+        io.to(data.id).emit('receive move', { all: tempPositions, me: me });
 	})
 
     socket.on('disconnect', () => {
