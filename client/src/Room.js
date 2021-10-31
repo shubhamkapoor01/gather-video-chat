@@ -201,11 +201,15 @@ function Room(props) {
 					</div>
 					<StyledVideo muted ref={ myVideo } autoPlay playsInLine />
 					<div className="videos">
-						{ peers.map(peer => {
+						{ peers.map((peer, idx) => {
 							return(
-								<div>
-									<Video peer={ peer } />
-								</div>
+								idx % 2 === 0 ? (
+									<div>
+										<Video peer={ peer } />
+									</div>
+								) : (
+									<div></div>
+								)
 							)
 						})}
 					</div>
