@@ -5,6 +5,7 @@ import "./Room.css";
 import Sketch from 'react-p5';
 import styled from "styled-components";
 import Chat from "./Chat";
+import RoomSetup from './RoomSetup';
 
 const socket = io.connect("http://localhost:3001");
 
@@ -26,20 +27,31 @@ const Video = (props) => {
 }
 
 function Room(props) {
+		const [name, setName] = useState("");
+		const [mic, setMic] = useState(true);
+		const [cam, setCam] = useState(true);
+		const [joinedRoom, setJoinedRoom] = useState(false);
 		const [users, setUsers] = useState([]);
 		const [peers, setPeers] = useState([]);
 		const [connected, setConnected] = useState({});
 		const myVideo = useRef(null);
 		const myPeer = useRef(null);
-		const peersRef = useRef([]);
+		var currentPeer = [];
     const roomID = props.match.params.roomID;
 
 		useEffect(() => {
 			socket.emit("join room", roomID);
+
 			const getUserMedia = async () => {
 				try {
 					const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
 					myVideo.current.srcObject = stream;
+					if (!cam) {
+						cameraOnOff();
+					}
+					if (!mic) {
+						muteUnmute();
+					}
 				} catch (err) {
 					console.log(err)
 				}
@@ -51,16 +63,15 @@ function Room(props) {
 			
 			peer.on('call', call => {
 				call.answer(myVideo.current.srcObject);
+				currentPeer.push(call.peerConnection)
 				call.on('stream', peerStream => {
-					peersRef.current.push(peerStream);
 					let temp = peers;
 					temp.push(peerStream);
 					setPeers(temp);
 				})
 			})
-
 			myPeer.current = peer;
-		}, []);
+		}, [myVideo.current]);
 
 	useEffect(() => {
 		socket.on('receive move', (data) => {
@@ -150,7 +161,34 @@ function Room(props) {
 	}
 	
 	const screenShare = (e) => {
-		// TODO
+		navigator.mediaDevices.getDisplayMedia({
+			video: { cursor: "always" },
+			audio: {
+				echoCancellation: true,
+				echoSupression: true,
+			}
+		}).then(stream => {
+			let videoTrack = stream.getVideoTracks()[0];
+			videoTrack.onended = () => { stopScreenShare() }
+			for (let i = 0; i < currentPeer.length; i ++) {
+				let sender = currentPeer[i].getSenders().find(s => {
+					return s.track.kind === videoTrack.kind;
+				})
+				sender.replaceTrack(videoTrack);
+			}
+		})
+		setPeers(peers);
+	}
+
+	const stopScreenShare = () => {
+		let videoTrack = myVideo.current.srcObject.getVideoTracks()[0];
+		for (let x = 0; x < currentPeer.length; x++) {
+			let sender = currentPeer[x].getSenders().find(function (s) {
+				return s.track.kind === videoTrack.kind;
+			});
+			sender.replaceTrack(videoTrack);
+		}
+		setPeers(peers);
 	}
 
 	const proximity = (user, me) => {
@@ -169,7 +207,6 @@ function Room(props) {
 		const call = myPeer.current.call(user.id, myVideo.current.srcObject)
 
 		call.on('stream', peerStream => {
-			peersRef.current.push(peerStream)
 			let temp = peers;
 			temp.push(peerStream);
 			setPeers(temp);
@@ -191,32 +228,38 @@ function Room(props) {
 	}
 
   return (
-		<div className="room">
-			<div className="video-canvas">
-				<div className="videobox">
-					<div className="buttonbox">
-						<button type="button" className="mute" onClick={ (e) => muteUnmute(e) }> Mute </button>
-						<button type="button" className="camera" onClick={ (e) => cameraOnOff(e) }> Camera </button>
-						<button type="button" className="screenshare" onClick={ (e) => screenShare(e) }> ScreenShare </button>
-					</div>
-					<StyledVideo muted ref={ myVideo } autoPlay playsInLine />
-					<div className="videos">
-						{ peers.map((peer, idx) => {
-							return(
-								idx % 2 === 0 ? (
-									<div>
+		<div>
+			{ joinedRoom ? (
+				<div className="room">
+					<div className="video-canvas">
+						<div className="videobox">
+							<div className="buttonbox">
+								<button type="button" className="mute" onClick={ (e) => muteUnmute(e) }> Mute </button>
+								<button type="button" className="camera" onClick={ (e) => cameraOnOff(e) }> Camera </button>
+								<button type="button" className="screenshare" onClick={ (e) => screenShare(e) }> ScreenShare </button>
+							</div>
+							<StyledVideo muted ref={ myVideo } autoPlay playsInLine />
+							<div className="videos">
+								{ peers.map((peer, idx) => {
+									return(
 										<Video peer={ peer } />
-									</div>
-								) : (
-									<div></div>
-								)
-							)
-						})}
+									)
+								})}
+							</div>
+						</div>
+						<Sketch setup={ setup } draw={ draw } className="canvas" />
 					</div>
+					<Chat className="chat" socket={ socket } room={ roomID } name={ name } />
 				</div>
-				<Sketch setup={ setup } draw={ draw } className="canvas" />
-			</div>
-			<Chat className="chat" socket={ socket } room={ roomID } />
+				) : (
+					<RoomSetup 
+						setJoinedRoom={ () => setJoinedRoom(true) } 
+						setMic={ preference => setMic(preference) } 
+						setCam={ preference => setCam(preference) } 
+						setName={ name => setName(name) }
+					/>
+				)
+			}
 		</div>
   );
 };
