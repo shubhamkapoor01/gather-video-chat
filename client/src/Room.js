@@ -5,6 +5,7 @@ import "./Room.css";
 import Sketch from "react-p5";
 import styled from "styled-components";
 import Chat from "./Chat";
+
 const muteBtn = document.querySelector(".mute");
 const cameraBtn = document.querySelector(".camera");
 const screenBtn = document.querySelector(".screenshare");
@@ -14,6 +15,8 @@ const screenBtn = document.querySelector(".screenshare");
   crossorigin="anonymous"
   referrerpolicy="no-referrer"
 ></script>;
+import RoomSetup from './RoomSetup';
+
 const socket = io.connect("http://localhost:3001");
 
 const StyledVideo = styled.video`
@@ -32,234 +35,240 @@ const Video = (props) => {
 };
 
 function Room(props) {
-  const [users, setUsers] = useState([]);
-  const [peers, setPeers] = useState([]);
-  const [connected, setConnected] = useState({});
-  const myVideo = useRef(null);
-  const myPeer = useRef(null);
-  const peersRef = useRef([]);
-  const roomID = props.match.params.roomID;
+		const [name, setName] = useState("");
+		const [mic, setMic] = useState(true);
+		const [cam, setCam] = useState(true);
+		const [joinedRoom, setJoinedRoom] = useState(false);
+		const [users, setUsers] = useState([]);
+		const [peers, setPeers] = useState([]);
+		const [connected, setConnected] = useState({});
+		const myVideo = useRef(null);
+		const myPeer = useRef(null);
+		var currentPeer = [];
+    const roomID = props.match.params.roomID;
 
-  useEffect(() => {
-    socket.emit("join room", roomID);
-    const getUserMedia = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true,
-        });
-        myVideo.current.srcObject = stream;
-      } catch (err) {
-        console.log(err);
-      }
-    };
+		useEffect(() => {
+			socket.emit("join room", roomID);
 
-    getUserMedia();
+			const getUserMedia = async () => {
+				try {
+					const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+					myVideo.current.srcObject = stream;
+					if (!cam) {
+						cameraOnOff();
+					}
+					if (!mic) {
+						muteUnmute();
+					}
+				} catch (err) {
+					console.log(err)
+				}
+			}
 
-    const peer = new Peer(socket.id);
+			getUserMedia();
 
-    peer.on("call", (call) => {
-      call.answer(myVideo.current.srcObject);
-      call.on("stream", (peerStream) => {
-        peersRef.current.push(peerStream);
-        let temp = peers;
-        temp.push(peerStream);
-        setPeers(temp);
-      });
-    });
+			const peer = new Peer(socket.id);
+			
+			peer.on('call', call => {
+				call.answer(myVideo.current.srcObject);
+				currentPeer.push(call.peerConnection)
+				call.on('stream', peerStream => {
+					let temp = peers;
+					temp.push(peerStream);
+					setPeers(temp);
+				})
+			})
+			myPeer.current = peer;
+		}, [myVideo.current]);
 
-    myPeer.current = peer;
-  }, []);
+	useEffect(() => {
+		socket.on('receive move', (data) => {
+			setUsers(data.all);
+			for (let i = 0; i < data.all.length; i ++) {
+				if (data.all[i].id === data.me.id) {
+					continue;
+				}
 
-  useEffect(() => {
-    socket.on("receive move", (data) => {
-      setUsers(data.all);
-      for (let i = 0; i < data.all.length; i++) {
-        if (data.all[i].id === data.me.id) {
-          continue;
-        }
+				let closer = proximity(data.all[i], data.me)
 
-        let closer = proximity(data.all[i], data.me);
+				if (closer && connected[data.all[i].id] === undefined) {
+					connectPeer(data.all[i], data.me);
 
-        if (closer && connected[data.all[i].id] === undefined) {
-          connectPeer(data.all[i], data.me);
-        } else if (!closer && connected[data.all[i].id] !== undefined) {
-          disconnectPeer(data.all[i], data.me);
-        }
-      }
-    });
-  }, [socket]);
+				} else if (!closer && connected[data.all[i].id] !== undefined) {
+					disconnectPeer(data.all[i], data.me);
+				}
+			}
+		})
+	}, [socket]);
 
-  let setup = (p5, canvas) => {
-    let canv = p5.createCanvas(800, 450).parent(canvas);
-    let tempUsers = [];
-    tempUsers.push({
-      id: socket.id,
-      room: roomID,
-      x: 400,
-      y: 100,
-    });
+	let setup = (p5, canvas) => {
+		let canv = p5.createCanvas(800, 600).parent(canvas);
+		let tempUsers = [];
+		tempUsers.push({
+			id: socket.id,
+			room: roomID,
+			x: 400,
+			y: 100
+		});
+		
+		setUsers(tempUsers);
+	}
 
-    setUsers(tempUsers);
-  };
+	let draw = (p5) => {
+		p5.background("rgb(255, 255, 255)");
 
-  let draw = (p5) => {
-    p5.background("rgb(255, 255, 255)");
+		let idx = users.findIndex((user) => user.id === socket.id)
+		if (idx !== -1) {
+			let tempUsers = users;
 
-    let idx = users.findIndex((user) => user.id === socket.id);
-    if (idx !== -1) {
-      let tempUsers = users;
+			if (p5.keyIsDown(87) || p5.keyIsDown(38)) {
+				tempUsers[idx].y = tempUsers[idx].y - 2;
+			}
+			if (p5.keyIsDown(65) || p5.keyIsDown(37)) {
+				tempUsers[idx].x = tempUsers[idx].x - 2;
+			}
+			if (p5.keyIsDown(83) || p5.keyIsDown(40)) {
+				tempUsers[idx].y = tempUsers[idx].y + 2;
+			}
+			if (p5.keyIsDown(68) || p5.keyIsDown(39)) {
+				tempUsers[idx].x = tempUsers[idx].x + 2;
+			}	
+			
+			let data = {
+				id: socket.id,
+				room: roomID,
+				x: tempUsers[idx].x,
+				y: tempUsers[idx].y	
+			}
 
-      if (p5.keyIsDown(87) || p5.keyIsDown(38)) {
-        tempUsers[idx].y = tempUsers[idx].y - 2;
-      }
-      if (p5.keyIsDown(65) || p5.keyIsDown(37)) {
-        tempUsers[idx].x = tempUsers[idx].x - 2;
-      }
-      if (p5.keyIsDown(83) || p5.keyIsDown(40)) {
-        tempUsers[idx].y = tempUsers[idx].y + 2;
-      }
-      if (p5.keyIsDown(68) || p5.keyIsDown(39)) {
-        tempUsers[idx].x = tempUsers[idx].x + 2;
-      }
+			setUsers(tempUsers);
+			socket.emit('send move', data);
+		}
 
-      let data = {
-        id: socket.id,
-        room: roomID,
-        x: tempUsers[idx].x,
-        y: tempUsers[idx].y,
-      };
+		for (let i = 0; i < users.length; i ++) {
+			p5.circle(users[i].x, users[i].y, 16);
+		}
+	}
 
-      setUsers(tempUsers);
-      socket.emit("send move", data);
-    }
+	const muteUnmute = (e) => {
+		const enabled = myVideo.current.srcObject.getAudioTracks()[0].enabled;
+		if (enabled) {
+			myVideo.current.srcObject.getAudioTracks()[0].enabled = false;	
+		} else {
+			myVideo.current.srcObject.getAudioTracks()[0].enabled = true;
+		}
+	}
 
-    for (let i = 0; i < users.length; i++) {
-      p5.circle(users[i].x, users[i].y, 16);
-    }
-  };
+	const cameraOnOff = (e) => {
+		const enabled = myVideo.current.srcObject.getVideoTracks()[0].enabled;
+		if (enabled) {
+			myVideo.current.srcObject.getVideoTracks()[0].enabled = false;
+		} else {
+			myVideo.current.srcObject.getVideoTracks()[0].enabled = true;
+		}
+	}
+	
+	const screenShare = (e) => {
+		navigator.mediaDevices.getDisplayMedia({
+			video: { cursor: "always" },
+			audio: {
+				echoCancellation: true,
+				echoSupression: true,
+			}
+		}).then(stream => {
+			let videoTrack = stream.getVideoTracks()[0];
+			videoTrack.onended = () => { stopScreenShare() }
+			for (let i = 0; i < currentPeer.length; i ++) {
+				let sender = currentPeer[i].getSenders().find(s => {
+					return s.track.kind === videoTrack.kind;
+				})
+				sender.replaceTrack(videoTrack);
+			}
+		})
+		setPeers(peers);
+	}
 
-  const muteUnmute = (e) => {
-    const enabled = myVideo.current.srcObject.getAudioTracks()[0].enabled;
-    if (enabled) {
-      myVideo.current.srcObject.getAudioTracks()[0].enabled = false;
-    } else {
-      myVideo.current.srcObject.getAudioTracks()[0].enabled = true;
-    }
-    const muteBtn = document.querySelector(".mute");
-    muteBtn.classList.toggle("whitened");
-  };
+	const stopScreenShare = () => {
+		let videoTrack = myVideo.current.srcObject.getVideoTracks()[0];
+		for (let x = 0; x < currentPeer.length; x++) {
+			let sender = currentPeer[x].getSenders().find(function (s) {
+				return s.track.kind === videoTrack.kind;
+			});
+			sender.replaceTrack(videoTrack);
+		}
+		setPeers(peers);
+	}
 
-  const cameraOnOff = (e) => {
-    const enabled = myVideo.current.srcObject.getVideoTracks()[0].enabled;
-    if (enabled) {
-      myVideo.current.srcObject.getVideoTracks()[0].enabled = false;
-    } else {
-      myVideo.current.srcObject.getVideoTracks()[0].enabled = true;
-    }
-    const cameraBtn = document.querySelector(".camera");
-    cameraBtn.classList.toggle("cameraOff");
-  };
+	const proximity = (user, me) => {
+		if ((user.x - me.x) * (user.x - me.x) + (user.y - me.y) * (user.y - me.y) <= 10000) {
+			if (user.x >= me.x) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}	
 
-  const screenShare = (e) => {
-    const screenBtn = document.querySelector(".screenshare");
-    screenBtn.classList.toggle("whitened");
+	const connectPeer = (user, me) => {
+		const call = myPeer.current.call(user.id, myVideo.current.srcObject)
 
-    // TODO
-  };
+		call.on('stream', peerStream => {
+			let temp = peers;
+			temp.push(peerStream);
+			setPeers(temp);
+		})
+		
+		let temp = connected;
+		temp[user.id] = true;
+		setConnected(temp);
+		return;
+	}
 
-  const proximity = (user, me) => {
-    if (
-      (user.x - me.x) * (user.x - me.x) + (user.y - me.y) * (user.y - me.y) <=
-      10000
-    ) {
-      if (user.x >= me.x) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
-  };
+	const disconnectPeer = (user) => {
+		
 
-  const connectPeer = (user, me) => {
-    const call = myPeer.current.call(user.id, myVideo.current.srcObject);
-
-    call.on("stream", (peerStream) => {
-      peersRef.current.push(peerStream);
-      let temp = peers;
-      temp.push(peerStream);
-      setPeers(temp);
-    });
-
-    let temp = connected;
-    temp[user.id] = true;
-    setConnected(temp);
-    return;
-  };
-
-  const disconnectPeer = (user) => {
-    let temp = connected;
-    delete temp[user.id];
-    setConnected(temp);
-    return;
-  };
+		let temp = connected;
+		delete temp[user.id]
+		setConnected(temp);
+		return;
+	}
 
   return (
-    <div className="room">
-      <div className="video-canvas">
-        <div className="videobox">
-          <div className="buttonbox">
-            <button
-              type="button"
-              className="mute"
-              onClick={(e) => muteUnmute(e)}
-            >
-              {" "}
-              <i className="fa fa-microphone-slash"></i>{" "}
-            </button>
-            <button
-              type="button"
-              className="camera"
-              onClick={(e) => cameraOnOff(e)}
-            >
-              {" "}
-              <i className="fa fa-camera"></i>{" "}
-            </button>
-            <button
-              type="button"
-              className="screenshare"
-              onClick={(e) => screenShare(e)}
-            >
-              {" "}
-              <i className="fa fa-desktop"></i>{" "}
-            </button>
-          </div>
-          <StyledVideo
-            muted
-            ref={myVideo}
-            autoPlay
-            playsInLine
-            className="videoElement"
-          />
-          <div className="videos">
-            {console.log(peers)}
-            {peers.map((peer, idx) => {
-              return idx % 2 === 0 ? (
-                <div>
-                  <Video peer={peer} />
-                </div>
-              ) : (
-                <div></div>
-              );
-            })}
-          </div>
-        </div>
-        <Sketch setup={setup} draw={draw} className="canvas" />
-      </div>
-      <Chat className="chat" socket={socket} room={roomID} />
-    </div>
+		<div>
+			{ joinedRoom ? (
+				<div className="room">
+					<div className="video-canvas">
+						<div className="videobox">
+							<div className="buttonbox">
+								<button type="button" className="mute" onClick={ (e) => muteUnmute(e) }> Mute </button>
+								<button type="button" className="camera" onClick={ (e) => cameraOnOff(e) }> Camera </button>
+								<button type="button" className="screenshare" onClick={ (e) => screenShare(e) }> ScreenShare </button>
+							</div>
+							<StyledVideo muted ref={ myVideo } autoPlay playsInLine />
+							<div className="videos">
+								{ peers.map((peer, idx) => {
+									return(
+										<Video peer={ peer } />
+									)
+								})}
+							</div>
+						</div>
+						<Sketch setup={ setup } draw={ draw } className="canvas" />
+					</div>
+					<Chat className="chat" socket={ socket } room={ roomID } name={ name } />
+				</div>
+				) : (
+					<RoomSetup 
+						setJoinedRoom={ () => setJoinedRoom(true) } 
+						setMic={ preference => setMic(preference) } 
+						setCam={ preference => setCam(preference) } 
+						setName={ name => setName(name) }
+					/>
+				)
+			}
+		</div>
   );
 }
 

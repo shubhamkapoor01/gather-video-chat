@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import './Chat.css'
 import ScrollToBottom from 'react-scroll-to-bottom'
 
-function Chat({ socket, room }) {
+function Chat({ socket, room, name }) {
 	const [messages, setMessages] = useState([])
 	const [message, setMessage] = useState("")
 
@@ -15,7 +15,7 @@ function Chat({ socket, room }) {
 
 		const messageData = {
 			room: room,
-			sender: socket.id,
+			sender: name,
 			message: message,
 			time: new Date(Date.now()).getHours() + ":" + new Date(Date.now()).getMinutes(),
 		}
