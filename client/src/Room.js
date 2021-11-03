@@ -2,29 +2,37 @@ import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import Peer from "peerjs";
 import "./Room.css";
-import Sketch from 'react-p5';
+import Sketch from "react-p5";
 import styled from "styled-components";
 import Chat from "./Chat";
+
+const muteBtn = document.querySelector(".mute");
+const cameraBtn = document.querySelector(".camera");
+const screenBtn = document.querySelector(".screenshare");
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/js/all.min.js"
+  integrity="sha512-cyAbuGborsD25bhT/uz++wPqrh5cqPh1ULJz4NSpN9ktWcA6Hnh9g+CWKeNx2R0fgQt+ybRXdabSBgYXkQTTmA=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>;
 import RoomSetup from './RoomSetup';
 
 const socket = io.connect("http://localhost:3001");
 
 const StyledVideo = styled.video`
-	height: 300px;
-	width: 300px;
+  height: 300px;
+  width: 300px;
 `;
 
 const Video = (props) => {
-	const ref = useRef();
+  const ref = useRef();
 
-	useEffect(() => {
-		ref.current.srcObject = props.peer;
-	}, []);
+  useEffect(() => {
+    ref.current.srcObject = props.peer;
+  }, []);
 
-	return (
-			<StyledVideo playsInline autoPlay ref={ ref } />
-	);
-}
+  return <StyledVideo playsInline autoPlay ref={ref} />;
+};
 
 function Room(props) {
 		const [name, setName] = useState("");
@@ -262,6 +270,6 @@ function Room(props) {
 			}
 		</div>
   );
-};
+}
 
 export default Room;
