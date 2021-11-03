@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react'
 import './RoomSetup.css'
 
 function RoomSetup(props) {
+	const [mic, setMic] = useState(true);
+	const [cam, setCam] = useState(true);
+	const [name, setName] = useState("");
 	const videoStream = useRef(null);
 
 	useEffect(() => {
@@ -18,6 +21,13 @@ function RoomSetup(props) {
 	}, []);
 
 	const muteUnmute = (e) => {
+		if (mic) {
+			setMic(false);
+			props.setMic(false);
+		} else {
+			setMic(true);
+			props.setMic(true);
+		}
 		const enabled = videoStream.current.srcObject.getAudioTracks()[0].enabled;
 		if (enabled) {
 			videoStream.current.srcObject.getAudioTracks()[0].enabled = false;	
@@ -27,6 +37,13 @@ function RoomSetup(props) {
 	}
 
 	const cameraOnOff = (e) => {
+		if (cam) {
+			setCam(false);
+			props.setCam(false);
+		} else {
+			setCam(true);
+			props.setCam(true);
+		}
 		const enabled = videoStream.current.srcObject.getVideoTracks()[0].enabled;
 		if (enabled) {
 			videoStream.current.srcObject.getVideoTracks()[0].enabled = false;
@@ -35,18 +52,31 @@ function RoomSetup(props) {
 		}
 	}
 
+	const updateName = (newName) => {
+		setName(newName);
+		props.setName(newName);
+	}
+
+	const joinRoom = (e) => {
+		if (name === "") {
+			alert("please enter a valid name");
+			return;
+		}
+		props.setJoinedRoom(true);
+	}
+
 	return (
 		<div className="roomsetup">
-			<button onClick={ (e) => props.setJoinedRoom(true) } > 
+			<button onClick={ (e) => joinRoom(e) } > 
 				Join
 			</button>
-			<button onClick={ (e) => props.setMic(false) }>
+			<button onClick={ (e) => muteUnmute(e) }>
 				mute mic
 			</button>
-			<button onClick={ (e) => props.setCam(false) }>
+			<button onClick={ (e) => cameraOnOff(e) }>
 				turn off cam
 			</button>
-			<input placeholder="enter display name" onChange={ (e) => props.setName(e.target.value) }/>
+			<input placeholder="enter display name" onChange={ (e) => updateName(e.target.value) }/>
 			<video muted ref={ videoStream } autoPlay />
 		</div>
 	)
