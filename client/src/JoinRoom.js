@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./JoinRoom.css";
+import './JoinRoom.css'
 import { v1 as uuid } from "uuid";
 import io from "socket.io-client";
 import e from "cors";
@@ -7,64 +7,45 @@ import e from "cors";
 const socket = io.connect("http://localhost:3001");
 
 function JoinRoom(props) {
-  const [name, setName] = useState("");
-  const [room, setRoom] = useState("");
+    const [name, setName] = useState("")
+    const [room, setRoom] = useState("")
+  
+    const joinRoom = (e) => {
+      e.preventDefault()
+      if (name === "" || room === "") {
+        alert("Please enter valid values")
+        return
+      }
 
-  const joinRoom = (e) => {
-    e.preventDefault();
-    if (name === "" || room === "") {
-      alert("Please enter valid values");
-      return;
+      document.getElementById("input-name").value = ""
+      document.getElementById("input-room").value = ""
+
+      props.history.push(`/room/${room}`);
     }
 
-    document.getElementById("input-name").value = "";
-    document.getElementById("input-room").value = "";
+    const createRoom = (e) => {
+        e.preventDefault();
+        if (name === "") {
+            alert("Please enter a name")
+            return
+        }
 
-    props.history.push(`/room/${room}`);
-  };
+        document.getElementById("input-name").value = ""
+        document.getElementById("input-room").value = ""
 
-  const createRoom = (e) => {
-    e.preventDefault();
-    if (name === "") {
-      alert("Please enter a name");
-      return;
+        const roomID = uuid();
+        props.history.push(`/room/${roomID}`);
     }
 
-    document.getElementById("input-name").value = "";
-    document.getElementById("input-room").value = "";
-
-    const roomID = uuid();
-    props.history.push(`/room/${roomID}`);
-  };
-
-  return (
-    <div className="overAll">
-      <div className="joinRoom">
-        <h1 className="entryTitle"> Enter Room Details </h1>
-        <input
-          id="input-name"
-          type="text"
-          placeholder="Enter Your Name..."
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          id="input-room"
-          type="text"
-          placeholder="Enter Room ID..."
-          onChange={(e) => setRoom(e.target.value)}
-        />
-        <button className="joinBtn" type="submit" onClick={(e) => joinRoom(e)}>
-          {" "}
-          Join a room{" "}
-        </button>
-        <div className="line"></div>
-        <button className="createBtn" onClick={(e) => createRoom(e)}>
-          {" "}
-          Create new room{" "}
-        </button>
-      </div>
-    </div>
-  );
-}
+    return (
+        <div className="joinRoom">
+            <h1> Enter Room Details </h1>
+            <input id="input-name" type="text" placeholder="Enter Your Name..." onChange={ (e) => setName(e.target.value) }/>
+            <input id="input-room" type="text" placeholder="Enter Room ID..." onChange={ (e) => setRoom(e.target.value) }/>
+            <button type="submit" onClick={ (e) => joinRoom(e) }> Join a room </button>
+            <button onClick={ (e) => createRoom(e) }> Create new room </button>
+        </div>
+    );
+};
 
 export default JoinRoom;
