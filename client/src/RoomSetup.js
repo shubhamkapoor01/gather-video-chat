@@ -51,7 +51,7 @@ function RoomSetup(props) {
 			videoStream.current.srcObject.getVideoTracks()[0].enabled = true;
 		}
 	}
-// todo
+	
 	const updateName = (newName) => {
 		setName(newName);
 		props.setName(newName);
