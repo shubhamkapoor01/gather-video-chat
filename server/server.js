@@ -1,5 +1,3 @@
-
-   
 require('dotenv').config();
 const express = require("express");
 const http = require("http");
@@ -75,7 +73,12 @@ io.on('connection', socket => {
 
 });
 
-server.listen(3001, () => console.log('server is running on port 3001'));
+if (process.env.NODE_ENV == "production") {
+    app.use(express.static("client/build"));
+}
+
+const port = rocess.env.PORT || 3001;
+server.listen(port, () => console.log(`server is running on port 3001 ${ port }`));
 
 // require('dotenv').config();
 // const express = require("express");
