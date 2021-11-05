@@ -7,7 +7,7 @@ import styled from "styled-components";
 import Chat from './Chat';
 import RoomSetup from './RoomSetup';
 
-const socket = io.connect("http://localhost:3001");
+const socket = io.connect(window.location.hostname);
 
 const StyledVideo = styled.video`
     height: 300px;
