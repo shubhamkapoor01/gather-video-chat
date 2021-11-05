@@ -12,7 +12,7 @@
     "react-router-dom": "^5.3.0",
     "react-scripts": "4.0.3",
     "react-scroll-to-bottom": "^4.2.0",
-    "simple-peer": "^9.11.0",
+    "simple-peer": "^9.6.2",
     "socket.io-client": "^4.3.2",
     "styled-components": "^5.3.3",
     "uuid": "^8.3.2",
