@@ -41,8 +41,17 @@ const trackPeers = useRef([]);
 const roomID = props.match.params.roomID;
 
 useEffect(() => {
+	if (!joinedRoom) {
+		return
+	}
 	navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
 		userVideo.current.srcObject = stream;
+		if (!cam) {
+			cameraOnOff();
+		}
+		if (!mic) {
+			muteUnmute();
+		}
 		socket.emit("join room", roomID);
 		socket.on("all users", users => {
 			users.forEach(userID => {
@@ -78,7 +87,7 @@ useEffect(() => {
 			setNearby(tempNearby);
 		})
 	})
-}, []);
+}, [joinedRoom]);
 
 const createPeer = (userToSignal, callerID, stream) => {
 	const peer = new Peer({
@@ -222,27 +231,38 @@ for (let i = 0; i < users.length; i ++) {
 }
 }
 
-return (
-<div className="room">
-	<div className="video-canvas">
-		<div className="buttonbox">
-			<button type="button" className="mute" onClick={ (e) => muteUnmute(e) }> Mute </button>
-		  <button type="button" className="camera" onClick={ (e) => cameraOnOff(e) }> Camera </button>
-	 		<button type="button" className="screenshare" onClick={ (e) => screenShare(e) }> ScreenShare </button>
+	return (
+		<div>
+		{ joinedRoom ? (
+			<div className="room">
+				<div className="video-canvas">
+					<div className="buttonbox">
+						<button type="button" className="mute" onClick={ (e) => muteUnmute(e) }> Mute </button>
+						<button type="button" className="camera" onClick={ (e) => cameraOnOff(e) }> Camera </button>
+						<button type="button" className="screenshare" onClick={ (e) => screenShare(e) }> ScreenShare </button>
+					</div>
+					<div className="videobox">
+						<StyledVideo muted ref={ userVideo } autoPlay playsInline />
+						{ nearby.map((peer) => {
+							return (
+								<Video peer={ peer.peer } />
+							);
+						})}
+					</div>
+					<Sketch setup={ setup } draw={ draw } className="canvas" />
+				</div>
+				<Chat className="chat" socket={ socket } room={ roomID } />
+			</div>
+			) : (
+	 			<RoomSetup 
+	 				setJoinedRoom={ () => setJoinedRoom(true) } 
+	 				setMic={ preference => setMic(preference) } 
+	 				setCam={ preference => setCam(preference) } 
+	 				setName={ name => setName(name) }
+	 			/>
+			)}
 		</div>
-		<div className="videobox">
-			<StyledVideo muted ref={ userVideo } autoPlay playsInline />
-			{ nearby.map((peer) => {
-				return (
-					<Video peer={ peer.peer } />
-				);
-			})}
-		</div>
-		<Sketch setup={ setup } draw={ draw } className="canvas" />
-	</div>
-	<Chat className="chat" socket={ socket } room={ roomID } />
-</div>
-);
+	);
 };
 
 export default Room;
@@ -299,12 +319,12 @@ export default Room;
 // 					const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
 // 					socket.emit("join room", roomID);
 // 					myVideo.current.srcObject = stream;
-// 					if (!cam) {
-// 						cameraOnOff();
-// 					}
-// 					if (!mic) {
-// 						muteUnmute();
-// 					}
+					// if (!cam) {
+					// 	cameraOnOff();
+					// }
+					// if (!mic) {
+					// 	muteUnmute();
+					// }
 // 				} catch (err) {
 // 					console.log(err)
 // 				}
