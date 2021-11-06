@@ -7,7 +7,7 @@ import styled from "styled-components";
 import Chat from './Chat';
 import RoomSetup from './RoomSetup';
 
-const socket = io.connect("https://gather-town.herokuapp.com")
+const socket = io.connect("http://localhost:3001")
 
 const StyledVideo = styled.video`
     height: 300px;
@@ -19,7 +19,7 @@ const Video = (props) => {
 
   useEffect(() => {
 		console.log(props.peer);
-		ref.current.srcObject = props.peer.streams[0];
+		ref.current.srcObject = props.peer._remoteStreams[0];
   }, []);
 
   return (
