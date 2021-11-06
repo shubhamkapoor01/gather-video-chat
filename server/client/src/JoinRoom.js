@@ -4,7 +4,7 @@ import { v1 as uuid } from "uuid";
 import io from "socket.io-client";
 import e from "cors";
 
-const socket = io.connect(window.location.hostname);
+const socket = io.connect("https://gather-town.herokuapp.com")
 
 function JoinRoom(props) {
     const [name, setName] = useState("")

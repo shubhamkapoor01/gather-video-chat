@@ -7,7 +7,7 @@ import styled from "styled-components";
 import Chat from './Chat';
 import RoomSetup from './RoomSetup';
 
-const socket = io.connect(window.location.hostname);
+const socket = io.connect("https://gather-town.herokuapp.com")
 
 const StyledVideo = styled.video`
     height: 300px;
@@ -229,7 +229,6 @@ return (
 			<button type="button" className="mute" onClick={ (e) => muteUnmute(e) }> Mute </button>
 		  <button type="button" className="camera" onClick={ (e) => cameraOnOff(e) }> Camera </button>
 	 		<button type="button" className="screenshare" onClick={ (e) => screenShare(e) }> ScreenShare </button>
-			<button type="button" className="debug" onClick={ (e) => console.log(peersRef.current) }> Debug </button>
 		</div>
 		<div className="videobox">
 			<StyledVideo muted ref={ userVideo } autoPlay playsInline />

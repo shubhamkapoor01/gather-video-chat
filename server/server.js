@@ -27,7 +27,6 @@ io.on('connection', socket => {
         } else {
             users[roomID] = [socket.id];
         }
-
         socketToRoom[socket.id] = roomID;
         socketToPosition.push({ id: socket.id, room: roomID, x: 400, y: 100 })
         const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
