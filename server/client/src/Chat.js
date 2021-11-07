@@ -15,7 +15,8 @@ function Chat({ socket, room, name }) {
 
 		const messageData = {
 			room: room,
-			sender: name,
+			senderId: socket.id,
+			senderName: name,
 			message: message,
 			time: new Date(Date.now()).getHours() + ":" + new Date(Date.now()).getMinutes(),
 		}
@@ -41,11 +42,11 @@ function Chat({ socket, room, name }) {
 						{ messages.map((message) => {
 							return (
 								<div className="message">
-									{ message.sender === socket.id ? (
+									{ message.senderId === socket.id ? (
 										<div className="message-sent"> 
 											<div className="message-sender">
 												<div className="sender-name">
-													<div className="sender-send"> { message.sender } </div>
+													<div className="sender-send"> { message.senderName } </div>
 												</div>
 												<div className="content-box">
 													<div className="text"> { message.message } </div>
@@ -56,7 +57,7 @@ function Chat({ socket, room, name }) {
 									) : (
 										<div className="message-received">
 											<div className="message-receiver">
-												<div className="sender-received"> { message.sender } </div>
+												<div className="sender-received"> { message.senderName } </div>
 												<div className="content-reciever">
 													<div className="content-box">
 														<div className="text"> { message.message } </div>
