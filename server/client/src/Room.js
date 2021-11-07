@@ -26,7 +26,6 @@ const Video = (props) => {
   const ref = useRef();
 
   useEffect(() => {
-    console.log(props.peer);
     ref.current.srcObject = props.peer._remoteStreams[0];
   }, []);
 
@@ -60,7 +59,7 @@ function Room(props) {
         if (!mic) {
           muteUnmute();
         }
-        socket.emit("join room", roomID);
+        socket.emit("join room", {roomID: roomID, name: name});
         socket.on("all users", (users) => {
           users.forEach((userID) => {
             const peer = createPeer(userID, socket.id, stream);
@@ -147,7 +146,7 @@ function Room(props) {
         if (proximity(data.all[i], me)) {
           for (var j = 0; j < peersRef.current.length; j++) {
             if (peersRef.current[j].peerID === data.all[i].id) {
-              tempNearby.push(peersRef.current[j]);
+              tempNearby.push({peerObj: peersRef.current[j], name: data.all[i].name});
             }
           }
         }
@@ -195,12 +194,12 @@ function Room(props) {
   };
 
   let setup = (p5, canvas) => {
-    let canv = p5.createCanvas(925, 500).parent(canvas);
+    let canv = p5.createCanvas(924, 500).parent(canvas);
     let tempUsers = [];
     tempUsers.push({
       id: socket.id,
       room: roomID,
-      x: 400,
+      x: 462,
       y: 100,
     });
 
@@ -273,20 +272,24 @@ function Room(props) {
               </button>
             </div>
             <div className="videobox">
-              <StyledVideo
-                className="video-room"
-                muted
-                ref={userVideo}
-                autoPlay
-                playsInline
-              />
+							<h2> {name} </h2>
+              <StyledVideo className="video-room" muted ref={userVideo} autoPlay playsInline />
               {nearby.map((peer) => {
-                return <Video peer={peer.peer} />;
+                return (
+									<div className="video-container">
+										<h2> {peer.name} </h2>
+										<Video peer={peer.peerObj.peer} />
+									</div>
+								);
               })}
             </div>
             <Sketch setup={setup} draw={draw} className="canvas" />
           </div>
-          <Chat className="chat" socket={socket} room={roomID} name={name} />
+					<div>
+						<h2> Room ID: </h2>
+						<h3> {roomID} </h3>
+          	<Chat className="chat" socket={socket} room={roomID} name={name} />
+					</div>
         </div>
       ) : (
         <RoomSetup

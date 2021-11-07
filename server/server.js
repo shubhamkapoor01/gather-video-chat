@@ -21,15 +21,15 @@ const socketToRoom = {};
 const socketToPosition = [];
 
 io.on('connection', socket => {
-    socket.on("join room", roomID => {
-        if (users[roomID]) {
-            users[roomID].push(socket.id);
+    socket.on("join room", data => {
+        if (users[data.roomID]) {
+            users[data.roomID].push(socket.id);
         } else {
-            users[roomID] = [socket.id];
+            users[data.roomID] = [socket.id];
         }
-        socketToRoom[socket.id] = roomID;
-        socketToPosition.push({ id: socket.id, room: roomID, x: 400, y: 100 })
-        const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
+        socketToRoom[socket.id] = data.roomID;
+        socketToPosition.push({ id: socket.id, room: data.roomID, name: data.name, x: 462, y: 100 })
+        const usersInThisRoom = users[data.roomID].filter(id => id !== socket.id);
         socket.emit("all users", usersInThisRoom);
     });
 
