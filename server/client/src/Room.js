@@ -16,10 +16,8 @@ import "font-awesome/css/font-awesome.min.css";
 const socket = io.connect("http://localhost:3001");
 
 const StyledVideo = styled.video`
-  height: 300px;
-  width: 300px;
-  padding-left: 5px;
-  padding-right: 5px;
+  height: 100%;
+  width: 100%;
 `;
 
 const Video = (props) => {
@@ -272,13 +270,23 @@ function Room(props) {
               </button>
             </div>
             <div className="videobox">
-							<h2> {name} </h2>
-              <StyledVideo className="video-room" muted ref={userVideo} autoPlay playsInline />
+							<div className="video-container">
+								<p className="person-name">
+									{name} 
+								</p>
+								<div className="video-style">
+										<StyledVideo className="video-room" muted ref={userVideo} autoPlay playsInline />
+								</div>
+							</div>
               {nearby.map((peer) => {
                 return (
-									<div className="video-container">
-										<h2> {peer.name} </h2>
-										<Video peer={peer.peerObj.peer} />
+									<div className="video-container-peer">
+										<p className="person-name-peer"> 
+											{peer.name}	
+										</p>
+										<div className="video-style-peer">
+											<Video peer={peer.peerObj.peer} />
+										</div>
 									</div>
 								);
               })}
