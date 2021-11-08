@@ -36,9 +36,7 @@ function Room(props) {
   const [name, setName] = useState("");
   const [mic, setMic] = useState(true);
   const [cam, setCam] = useState(true);
-  const [handRaised, setHandRaised] = useState(false);
-  const [thumbsUp, setThumbsUp] = useState(false);
-  const [thumbsDown, setThumbsDown] = useState(false);
+  const [faces, setFaces] = useState(1);
   const [joinedRoom, setJoinedRoom] = useState(false);
 
   const [nearby, setNearby] = useState([]);
@@ -164,6 +162,13 @@ function Room(props) {
       setNearby(tempNearby);
     });
   }, [socket]);
+
+  useEffect(() => {
+    if (faces !== 1) {
+      userVideo.current.srcObject.getVideoTracks()[0].enabled = false; 
+      userVideo.current.srcObject.getAudioTracks()[0].enabled = false; 
+    }
+  }, [faces])
 
   const muteUnmute = (e) => {
     const enabled = userVideo.current.srcObject.getAudioTracks()[0].enabled;
@@ -324,9 +329,7 @@ function Room(props) {
             { aiEnabled ? ( 
               <Model 
                 streamRef={modelVideo} 
-                setHandRaised={(raised) => setHandRaised(raised)}
-                setThumbsUp={(thumbsUp) => setThumbsUp(thumbsUp)}
-                setThumbsDown={(thumbsDown) => setThumbsDown(thumbsDown)}
+                setFaces={(faces) => setFaces(faces)}
               />
             ) : (
               <div></div>
