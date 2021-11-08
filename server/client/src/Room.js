@@ -6,6 +6,7 @@ import Sketch from "react-p5";
 import styled from "styled-components";
 import Chat from "./Chat";
 import RoomSetup from "./RoomSetup";
+import Model from './Model';
 import "font-awesome/css/font-awesome.min.css";
 <script
   src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/js/all.min.js"
@@ -31,14 +32,19 @@ const Video = (props) => {
 };
 
 function Room(props) {
+  const [aiEnabled, setAiEnabled] = useState(false);
   const [name, setName] = useState("");
   const [mic, setMic] = useState(true);
   const [cam, setCam] = useState(true);
+  const [handRaised, setHandRaised] = useState(false);
+  const [thumbsUp, setThumbsUp] = useState(false);
+  const [thumbsDown, setThumbsDown] = useState(false);
   const [joinedRoom, setJoinedRoom] = useState(false);
 
   const [nearby, setNearby] = useState([]);
   const [users, setUsers] = useState([]);
   const userVideo = useRef();
+  const modelVideo = useRef();
   const peersRef = useRef([]);
   const trackPeers = useRef([]);
   const roomID = props.match.params.roomID;
@@ -51,6 +57,8 @@ function Room(props) {
       .getUserMedia({ video: true, audio: true })
       .then((stream) => {
         userVideo.current.srcObject = stream;
+        modelVideo.current = {};
+        modelVideo.current.srcObject = stream;
         if (!cam) {
           cameraOnOff();
         }
@@ -241,6 +249,14 @@ function Room(props) {
     }
   };
 
+  const handleAiToggle = () => {
+    if (aiEnabled) {
+      setAiEnabled(false);
+    } else {
+      setAiEnabled(true);
+    }
+  }
+
   return (
     <div>
       {joinedRoom ? (
@@ -299,8 +315,22 @@ function Room(props) {
             <Sketch setup={setup} draw={draw} className="canvas" />
           </div>
           <div>
-            <h2> Room ID: </h2>
-            <h3> {roomID} </h3>
+            <button 
+              className="enable-ai"
+              onClick={(e) => handleAiToggle()}
+              >
+              Enable Gesture Recognition
+            </button>
+            { aiEnabled ? ( 
+              <Model 
+                streamRef={modelVideo} 
+                setHandRaised={(raised) => setHandRaised(raised)}
+                setThumbsUp={(thumbsUp) => setThumbsUp(thumbsUp)}
+                setThumbsDown={(thumbsDown) => setThumbsDown(thumbsDown)}
+              />
+            ) : (
+              <div></div>
+            )}
             <Chat className="chat" socket={socket} room={roomID} name={name} />
           </div>
         </div>

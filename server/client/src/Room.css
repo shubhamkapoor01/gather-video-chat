@@ -85,7 +85,8 @@
   box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;
   margin-top: 140px;
   margin-left: 10px;
-  width: 30%;
+  padding-left: 6px;
+  padding-right: 6px;
   text-align: center;
   border: 1px solid rgb(168, 168, 168);
 }
@@ -119,7 +120,8 @@
   box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;
   margin-top: 140px;
   margin-left: 10px;
-  width: 30%;
+  padding-left: 6px;
+  padding-right: 6px;
   text-align: center;
   border: 1px solid rgb(168, 168, 168);
 }
