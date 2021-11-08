@@ -11,7 +11,7 @@
 
 .videobox {
   justify-content: flex-end;
-  margin-top: -50px;
+  margin-top: -30px;
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
@@ -65,12 +65,29 @@
   display: flex;
   margin-top: 40px;
   flex-direction: column;
+  position: relative;
+  z-index: 1;
+  /* margin-left: 250px; */
 }
 
 .person-name {
   color: white;
   margin-left: auto;
   margin-right: auto;
+  position: absolute;
+  z-index: 9;
+  background: linear-gradient(
+    to right bottom,
+    rgba(77, 77, 77, 0.9),
+    rgba(49, 49, 49, 0.8)
+  );
+  border-radius: 20px;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;
+  margin-top: 140px;
+  margin-left: 10px;
+  width: 30%;
+  text-align: center;
+  border: 1px solid rgb(168, 168, 168);
 }
 
 .video-style {
@@ -83,18 +100,34 @@
   display: flex;
   margin-top: 40px;
   flex-direction: column;
+  position: relative;
+  z-index: 1;
 }
 
 .person-name-peer {
   color: white;
   margin-left: auto;
   margin-right: auto;
+  position: absolute;
+  z-index: 9;
+  background: linear-gradient(
+    to right bottom,
+    rgba(77, 77, 77, 0.9),
+    rgba(49, 49, 49, 0.8)
+  );
+  border-radius: 20px;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;
+  margin-top: 140px;
+  margin-left: 10px;
+  width: 30%;
+  text-align: center;
+  border: 1px solid rgb(168, 168, 168);
 }
 
 .video-style-peer {
   height: 175px;
   width: 300px;
-  border-radius: 10px;
+  border-radius: 20px !important;
 }
 
 .canvas {
