@@ -57,7 +57,7 @@ function Room(props) {
         if (!mic) {
           muteUnmute();
         }
-        socket.emit("join room", {roomID: roomID, name: name});
+        socket.emit("join room", { roomID: roomID, name: name });
         socket.on("all users", (users) => {
           users.forEach((userID) => {
             const peer = createPeer(userID, socket.id, stream);
@@ -144,7 +144,10 @@ function Room(props) {
         if (proximity(data.all[i], me)) {
           for (var j = 0; j < peersRef.current.length; j++) {
             if (peersRef.current[j].peerID === data.all[i].id) {
-              tempNearby.push({peerObj: peersRef.current[j], name: data.all[i].name});
+              tempNearby.push({
+                peerObj: peersRef.current[j],
+                name: data.all[i].name,
+              });
             }
           }
         }
@@ -270,34 +273,36 @@ function Room(props) {
               </button>
             </div>
             <div className="videobox">
-							<div className="video-container">
-								<p className="person-name">
-									{name} 
-								</p>
-								<div className="video-style">
-										<StyledVideo className="video-room" muted ref={userVideo} autoPlay playsInline />
-								</div>
-							</div>
+              <div className="video-container">
+                <p className="person-name">{name}</p>
+                <div className="video-style">
+                  <StyledVideo
+                    className="video-room"
+                    muted
+                    ref={userVideo}
+                    autoPlay
+                    playsInline
+                  />
+                </div>
+              </div>
               {nearby.map((peer) => {
                 return (
-									<div className="video-container-peer">
-										<p className="person-name-peer"> 
-											{peer.name}	
-										</p>
-										<div className="video-style-peer">
-											<Video peer={peer.peerObj.peer} />
-										</div>
-									</div>
-								);
+                  <div className="video-container-peer">
+                    <p className="person-name-peer">{peer.name}</p>
+                    <div className="video-style-peer">
+                      <Video peer={peer.peerObj.peer} />
+                    </div>
+                  </div>
+                );
               })}
             </div>
             <Sketch setup={setup} draw={draw} className="canvas" />
           </div>
-					<div>
-						<h2> Room ID: </h2>
-						<h3> {roomID} </h3>
-          	<Chat className="chat" socket={socket} room={roomID} name={name} />
-					</div>
+          <div>
+            <h2> Room ID: </h2>
+            <h3> {roomID} </h3>
+            <Chat className="chat" socket={socket} room={roomID} name={name} />
+          </div>
         </div>
       ) : (
         <RoomSetup

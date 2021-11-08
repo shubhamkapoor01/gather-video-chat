@@ -12,12 +12,6 @@
   flex-direction: column;
   width: max-content;
   margin: auto;
-
-  /* background: linear-gradient(
-    to right bottom,
-    rgba(255, 255, 255, 0.7),
-    rgba(255, 255, 255, 0.3)
-  ); */
   border-radius: 1.5rem;
   backdrop-filter: blur(2rem);
   box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;
@@ -55,7 +49,6 @@
   font-weight: 500;
   backdrop-filter: blur(2rem);
   outline: none;
-  /* border: 1px solid #707070; */
 }
 
 #input-room::-webkit-input-placeholder {
@@ -122,5 +115,5 @@
 .entryTitle {
   color: rgb(223, 223, 223);
   padding-bottom: 25px;
-  padding-top: 5px;
+  padding-top: 20px;
 }
