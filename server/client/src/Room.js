@@ -164,9 +164,20 @@ function Room(props) {
   }, [socket]);
 
   useEffect(() => {
+    if (!joinedRoom) {
+      return;
+    }
+    
     if (faces !== 1) {
       userVideo.current.srcObject.getVideoTracks()[0].enabled = false; 
       userVideo.current.srcObject.getAudioTracks()[0].enabled = false; 
+    } else {
+      if (cam) {
+        userVideo.current.srcObject.getVideoTracks()[0].enabled = true;
+      }
+      if (mic) {
+        userVideo.current.srcObject.getAudioTracks()[0].enabled = true;
+      }
     }
   }, [faces])
 
@@ -174,8 +185,10 @@ function Room(props) {
     const enabled = userVideo.current.srcObject.getAudioTracks()[0].enabled;
     if (enabled) {
       userVideo.current.srcObject.getAudioTracks()[0].enabled = false;
+      setMic(false);
     } else {
       userVideo.current.srcObject.getAudioTracks()[0].enabled = true;
+      setMic(true);
     }
     const muteBtn = document.querySelector(".mute-1");
     muteBtn.classList.toggle("whitened");
@@ -185,8 +198,10 @@ function Room(props) {
     const enabled = userVideo.current.srcObject.getVideoTracks()[0].enabled;
     if (enabled) {
       userVideo.current.srcObject.getVideoTracks()[0].enabled = false;
+      setCam(false);
     } else {
       userVideo.current.srcObject.getVideoTracks()[0].enabled = true;
+      setCam(true);
     }
     const cameraBtn = document.querySelector(".camera-1");
     cameraBtn.classList.toggle("cameraOff");

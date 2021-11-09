@@ -13,7 +13,7 @@ function Model(props) {
 
 		setInterval(() => {
 			detect(net);
-		}, 100)
+		}, 1000)
 	}
 
   const detect = async (net) => {
