@@ -207,9 +207,20 @@ function Room(props) {
     cameraBtn.classList.toggle("cameraOff");
   };
 
-  const screenShare = (e) => {};
-
-  const stopScreenShare = () => {};
+  const screenShare = (e) => {
+    navigator.mediaDevices
+      .getDisplayMedia({ 
+        cursor: true,
+      }).then(screen => {
+        const screenTrack = screen.getTracks()[0];
+        console.log(screenTrack);
+        console.log(userVideo.current.srcObject);
+        
+        screen.onended = () => {
+          userVideo.current.srcObject = modelVideo.current.srcObject;
+        }
+      })
+  };
 
   const proximity = (user, me) => {
     if (
