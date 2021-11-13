@@ -44,7 +44,6 @@ function Room(props) {
   const userVideo = useRef();
   const modelVideo = useRef();
   const peersRef = useRef([]);
-  const trackPeers = useRef([]);
   const roomID = props.match.params.roomID;
 
   useEffect(() => {
@@ -212,16 +211,30 @@ function Room(props) {
       .getDisplayMedia({ 
         cursor: true,
       }).then(screen => {
-        const screenTrack = screen.getTracks()[0];
-        console.log(screenTrack);
-        console.log(userVideo.current.srcObject);
+        const screenTrack = screen.getVideoTracks()[0];
+        userVideo.current.srcObject = screen;
+        for (let i = 0; i < peersRef.current.length; i ++) {
+          let p = peersRef.current[i].peer;
+          p.streams[0].getVideoTracks()[0].stop();
+          p.replaceTrack(p.streams[0].getVideoTracks()[0], screenTrack, p.streams[0]);
+        }
         
-        screen.onended = () => {
-          userVideo.current.srcObject = modelVideo.current.srcObject;
+        screenTrack.onended = () => {
+          navigator.mediaDevices
+          .getUserMedia({ video: true, audio: true })
+          .then(stream => {
+            const videoTrack = stream.getVideoTracks()[0];
+            userVideo.current.srcObject = stream;
+            for (let i = 0; i < peersRef.current.length; i ++) {
+              let p = peersRef.current[i].peer;
+              p.streams[0].getVideoTracks()[0].stop();
+              p.replaceTrack(p.streams[0].getVideoTracks()[0], videoTrack, p.streams[0]);
+            }
+          })
         }
       })
   };
-  
+
   const proximity = (user, me) => {
     if (
       (user.x - me.x) * (user.x - me.x) + (user.y - me.y) * (user.y - me.y) <=
@@ -252,18 +265,23 @@ function Room(props) {
     let idx = users.findIndex((user) => user.id === socket.id);
     if (idx !== -1) {
       let tempUsers = users;
+      let direction = "";
 
       if (p5.keyIsDown(87) || p5.keyIsDown(38)) {
         tempUsers[idx].y = tempUsers[idx].y - 2;
-      }
-      if (p5.keyIsDown(65) || p5.keyIsDown(37)) {
+        direction += 'w';
+
+      } else if (p5.keyIsDown(65) || p5.keyIsDown(37)) {
         tempUsers[idx].x = tempUsers[idx].x - 2;
-      }
-      if (p5.keyIsDown(83) || p5.keyIsDown(40)) {
+        direction += 'a';
+
+      } else if (p5.keyIsDown(83) || p5.keyIsDown(40)) {
         tempUsers[idx].y = tempUsers[idx].y + 2;
-      }
-      if (p5.keyIsDown(68) || p5.keyIsDown(39)) {
+        direction += 's';
+
+      } else if (p5.keyIsDown(68) || p5.keyIsDown(39)) {
         tempUsers[idx].x = tempUsers[idx].x + 2;
+        direction += 'd';
       }
 
       setUsers(tempUsers);
@@ -272,6 +290,7 @@ function Room(props) {
         room: roomID,
         x: tempUsers[idx].x,
         y: tempUsers[idx].y,
+        direction: direction
       };
       socket.emit("send move", data);
     }
