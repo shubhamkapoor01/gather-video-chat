@@ -221,7 +221,7 @@ function Room(props) {
         }
       })
   };
-
+  
   const proximity = (user, me) => {
     if (
       (user.x - me.x) * (user.x - me.x) + (user.y - me.y) * (user.y - me.y) <=
