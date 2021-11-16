@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Switch } from "react-router-dom";
 import JoinRoom from "./JoinRoom";
 import Room from './Room';
 
+// TODO add mongodb login auth
+
 function App() {
   return (
     <BrowserRouter>
