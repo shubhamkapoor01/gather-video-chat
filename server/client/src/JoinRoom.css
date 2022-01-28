@@ -1,0 +1,119 @@
+.overAll {
+  background: url("./Sprites/background-gather-1.jpeg");
+  width: 90rem;
+  height: 52rem;
+  overflow: hidden;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.joinRoom {
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  margin: auto;
+  border-radius: 1.5rem;
+  backdrop-filter: blur(2rem);
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;
+  padding: 15px 20px;
+}
+
+.joinRoom {
+  transform: translate(0px, 240px);
+  background-color: rgba(16 18 27 / 40%);
+  backdrop-filter: blur(2rem);
+  transition-duration: 300ms;
+  transition-timing-function: ease-in;
+}
+
+#input-name,
+#input-room {
+  color: rgb(228, 228, 228);
+  margin: 8px;
+  padding: 8px;
+  outline: none;
+  background-color: transparent;
+  opacity: 0.75;
+  text-align: center;
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 5px 15px;
+  border-radius: 16px;
+  padding: 12px;
+  margin: 4px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background: linear-gradient(
+    to right bottom,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.2)
+  );
+  font-weight: 500;
+  backdrop-filter: blur(2rem);
+  outline: none;
+}
+
+#input-room::-webkit-input-placeholder {
+  color: #bbbaba;
+  opacity: 0.6;
+}
+#input-name::-webkit-input-placeholder {
+  color: #bbbaba;
+  opacity: 0.6;
+}
+::-webkit-input-placeholder {
+  color: #bbbaba;
+  opacity: 0.6;
+}
+
+.joinBtn {
+  margin: 8px;
+  padding: 8px;
+  padding: 8px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: black;
+  margin-top: 10px;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+}
+.joinBtn:hover {
+  background-color: rgb(238, 238, 238);
+  color: black;
+  font-weight: 700;
+  cursor: pointer;
+  font-weight: 700;
+  transform: scale(1.2);
+  transition-duration: 100ms;
+}
+
+.joinBtn:not(:hover) {
+  font-weight: 400;
+  transform: scale(1);
+  transition-duration: 100ms;
+}
+.createBtn {
+  border: none;
+  background: none;
+  color: rgb(148, 148, 148);
+  font-size: 1rem;
+}
+
+.createBtn:hover {
+  color: rgb(255, 255, 255);
+  cursor: pointer;
+  transition-duration: 200ms;
+}
+.createBtn:not(:hover) {
+  transition-duration: 200ms;
+}
+.line {
+  border-bottom: 1px solid #8d8d8d;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+}
+.entryTitle {
+  color: rgb(223, 223, 223);
+  padding-bottom: 25px;
+  padding-top: 20px;
+}

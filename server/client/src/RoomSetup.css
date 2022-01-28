@@ -1,0 +1,200 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+.roomsetup {
+  /* display: flex;
+  flex-direction: row;
+  justify-content: space-between; */
+  background: url("./Sprites/background-gather-1.jpeg");
+  width: 90rem;
+  height: 52rem;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.video {
+  width: 800px;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  background-color: rgba(16 18 27 / 40%);
+  border-radius: 1.5rem;
+  backdrop-filter: blur(2rem);
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 10px 20px;
+  z-index: -1;
+}
+.roomsetup-1 {
+  display: flex;
+}
+.Vid-controls {
+  position: relative;
+  margin: 80px;
+  margin-top: 150px;
+}
+.Btn-controls {
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 130px;
+  height: 35px;
+  z-index: 2;
+  background: linear-gradient(
+    to right bottom,
+    rgba(77, 77, 77, 0.7),
+    rgba(49, 49, 49, 0.5)
+  );
+  border-radius: 20px;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;
+  transform: translate(300px, 375px);
+  padding: 15px;
+}
+.mute {
+  transform: scale(1.5);
+  margin-left: auto;
+  margin-right: auto;
+  background-color: transparent;
+  margin-top: 1px;
+  margin-bottom: 2px;
+  color: rgb(211, 211, 211);
+  font-size: 16px;
+  border-radius: 8px;
+  margin-left: 10px;
+  padding-left: 7px;
+  padding-right: 7px;
+}
+.camera {
+  transform: scale(1.5);
+  background-color: rgb(238, 238, 238);
+  margin-top: 1px;
+  margin-bottom: 2px;
+  color: black;
+  font-size: 16px;
+  border-radius: 8px;
+  margin-left: 10px;
+  padding-left: 6px;
+  padding-right: 6px;
+  margin-right: 7px;
+}
+.camera {
+  background-color: rgb(238, 238, 238);
+  color: black;
+  font-weight: 700;
+  cursor: pointer;
+  font-weight: 700;
+  transition-duration: 100ms;
+}
+
+.mute:hover {
+  background-color: rgb(238, 238, 238);
+  color: black;
+  font-weight: 700;
+  cursor: pointer;
+  font-weight: 700;
+  transition-duration: 100ms;
+}
+.camera:hover {
+  background-color: black;
+  color: rgb(238, 238, 238);
+  font-weight: 700;
+  cursor: pointer;
+  font-weight: 700;
+  transition-duration: 100ms;
+}
+
+.dispName {
+  width: 100%;
+  margin: 8px;
+  padding: 8px;
+  padding-left: 3px;
+  width: 230px;
+  color: white;
+  color: rgb(228, 228, 228);
+  margin: 8px;
+  padding: 8px;
+  outline: none;
+  background-color: transparent;
+  opacity: 0.75;
+  text-align: center;
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 5px 15px;
+  border-radius: 16px;
+  padding: 12px;
+  margin: 4px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background: linear-gradient(
+    to right bottom,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.2)
+  );
+  font-weight: 500;
+  backdrop-filter: blur(2rem);
+  outline: none;
+  transform: translate(12px);
+}
+.dispName::-webkit-input-placeholder {
+  color: #d5d5d5;
+  opacity: 0.6;
+  font-family: "Poppins", sans-serif;
+}
+.join-Btn {
+  margin: 8px;
+  padding: 8px;
+  padding: 8px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: black;
+  margin-top: 10px;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+}
+.join-Btn:hover {
+  background-color: rgb(238, 238, 238);
+  color: black;
+  font-weight: 700;
+  cursor: pointer;
+  font-weight: 700;
+  transform: scale(1.2);
+  transition-duration: 100ms;
+}
+
+.join-Btn:not(:hover) {
+  font-weight: 400;
+  transform: scale(1);
+  transition-duration: 100ms;
+}
+.join-controls {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 290px;
+  height: 230px;
+  margin: auto;
+  margin-left: 60px;
+  margin-top: 260px;
+  border-radius: 1.5rem;
+  background: linear-gradient(
+    to right bottom,
+    rgba(77, 77, 77, 0.7),
+    rgba(49, 49, 49, 0.5)
+  );
+  border-radius: 20px;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;
+}
+.name {
+  font-size: 1.9rem;
+  color: #e1e1e1;
+  transform: translate(20px, 20px);
+  font-family: "Poppins", sans-serif;
+}
+.whitened {
+  background-color: rgb(238, 238, 238);
+  color: black;
+  position: relative;
+}
+.cameraOff {
+  background-color: transparent;
+  color: rgb(211, 211, 211);
+}
