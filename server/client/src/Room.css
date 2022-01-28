@@ -1,8 +1,11 @@
+:root {
+  --pixel-size: 6;
+}
 .room {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  background: url("background-gather-1.jpeg");
+  background: url("./Sprites/background-gather-1.jpeg");
   width: 90rem;
   height: 52rem;
   background-size: cover;
@@ -212,4 +215,49 @@
 }
 .canvas {
   transform: translate(0px, 0px);
+}
+
+.character_spritesheet {
+  width: calc(128px * var(--pixel-size));
+}
+
+.enable-ai {
+  margin-left: auto;
+  margin-right: auto;
+  background-color: rgba(16 18 27 / 60%);
+  border-radius: 1.5rem;
+  backdrop-filter: blur(2rem);
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;
+  padding: 15px 20px;
+  margin-top: 10px;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  margin-left: 70px;
+  font-weight: 500;
+}
+.enable-ai:hover {
+  background-color: rgba(16 18 27 / 80%);
+  cursor: pointer;
+  transition-duration: 150ms;
+}
+
+.enable-ai:not(:hover) {
+  transition-duration: 150ms;
+}
+
+.aiBtnOn {
+  animation: glow 1s linear infinite;
+}
+
+@keyframes glow {
+  0% {
+    background-color: rgba(16 18 27 / 90%);
+    transition-duration: 150ms;
+  }
+  100% {
+    background-color: rgba(16 18 27 / 60%);
+    transition-duration: 150ms;
+  }
 }

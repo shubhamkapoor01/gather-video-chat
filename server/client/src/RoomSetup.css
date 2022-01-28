@@ -6,7 +6,7 @@
   /* display: flex;
   flex-direction: row;
   justify-content: space-between; */
-  background: url("background-gather-1.jpeg");
+  background: url("./Sprites/background-gather-1.jpeg");
   width: 90rem;
   height: 52rem;
   background-size: cover;
