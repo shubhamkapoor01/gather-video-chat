@@ -261,3 +261,30 @@
     transition-duration: 150ms;
   }
 }
+.leave-room {
+  margin-left: auto;
+  margin-right: auto;
+  background-color: rgba(119, 0, 26, 0.747);
+  border-radius: 1.5rem;
+  backdrop-filter: blur(2rem);
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 20px;
+  padding: 15px 20px;
+  margin-top: 10px;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  margin-left: 10px;
+  font-weight: 500;
+  margin-top: -82px;
+  transform: translate(0px, -11px);
+}
+.leave-room:hover {
+  background-color: rgba(168, 0, 36, 0.747);
+  cursor: pointer;
+  transition-duration: 150ms;
+}
+
+.leave-room:not(:hover) {
+  transition-duration: 150ms;
+}

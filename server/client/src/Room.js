@@ -43,6 +43,11 @@ let img,
 let keypressed = false;
 let greenUsed = false;
 let fr = 60;
+var twoLeft = false;
+var userNum = null;
+let colorSet = [];
+let tempUsers = [];
+let tempFine;
 <script
   src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/js/all.min.js"
   integrity="sha512-cyAbuGborsD25bhT/uz++wPqrh5cqPh1ULJz4NSpN9ktWcA6Hnh9g+CWKeNx2R0fgQt+ybRXdabSBgYXkQTTmA=="
@@ -307,24 +312,25 @@ function Room(props) {
     imgol = p5.loadImage(imagol);
     imgor = p5.loadImage(imagor);
   };
+
   let setup = (p5, canvas) => {
     p5.frameRate(fr);
     let canv = p5.createCanvas(924, 500).parent(canvas);
-    let tempUsers = [];
     tempUsers.push({
       id: socket.id,
       room: roomID,
       x: 462,
       y: 100,
       direction: null,
+      quit: false,
     });
 
     setUsers(tempUsers);
   };
 
   let draw = (p5) => {
-    // p5.background("rgb(255,255,255)");
     p5.background(bg);
+    let winClose = false;
     let idx = users.findIndex((user) => user.id === socket.id);
     if (idx !== -1) {
       let tempUsers = users;
@@ -349,9 +355,13 @@ function Room(props) {
         tempUsers[idx].x = tempUsers[idx].x + 2;
         p5.image(imgr, users[idx].x, users[idx].y);
         tempUsers[idx].direction = "d";
+      } else if (p5.keyIsDown(27)) {
+        tempUsers[idx].quit = true;
       }
       if (keypressed == false) {
-        p5.image(img, users[idx].x, users[idx].y);
+        if (users[idx].quit == false) {
+          p5.image(img, users[idx].x, users[idx].y);
+        }
       }
       keypressed = false;
       setUsers(tempUsers);
@@ -361,6 +371,7 @@ function Room(props) {
         x: tempUsers[idx].x,
         y: tempUsers[idx].y,
         direction: tempUsers[idx].direction,
+        quit: tempUsers[idx].quit,
       };
       socket.emit("send move", data);
     }
@@ -369,7 +380,64 @@ function Room(props) {
       if (i === idx) {
         continue;
       }
-
+      if (i === userNum) {
+        continue;
+      }
+      if (twoLeft == true) {
+        if (users[i].quit == true) {
+          continue;
+        }
+        if (users.length == 3) {
+          if (users[i].direction == "w") {
+            p5.image(imggb, users[i].x, users[i].y);
+          } else if (users[i].direction == "s") {
+            p5.image(imggf, users[i].x, users[i].y);
+          } else if (users[i].direction == "a") {
+            p5.image(imggl, users[i].x, users[i].y);
+          } else if (users[i].direction == "d") {
+            p5.image(imggr, users[i].x, users[i].y);
+          } else {
+            p5.image(imgg, users[i].x, users[i].y);
+          }
+          continue;
+        }
+      }
+      if (users[i].quit === true) {
+        if (users.length === 3) {
+          userNum = i;
+          twoLeft = true;
+          continue;
+        }
+        continue;
+      }
+      if (colorSet[i] == "g") {
+        if (users[i].direction == "w") {
+          p5.image(imggb, users[i].x, users[i].y);
+        } else if (users[i].direction == "s") {
+          p5.image(imggf, users[i].x, users[i].y);
+        } else if (users[i].direction == "a") {
+          p5.image(imggl, users[i].x, users[i].y);
+        } else if (users[i].direction == "d") {
+          p5.image(imggr, users[i].x, users[i].y);
+        } else {
+          p5.image(imgg, users[i].x, users[i].y);
+        }
+        continue;
+      }
+      if (colorSet[i] == "o") {
+        if (users[i].direction == "w") {
+          p5.image(imgob, users[i].x, users[i].y);
+        } else if (users[i].direction == "s") {
+          p5.image(imgof, users[i].x, users[i].y);
+        } else if (users[i].direction == "a") {
+          p5.image(imgol, users[i].x, users[i].y);
+        } else if (users[i].direction == "d") {
+          p5.image(imgor, users[i].x, users[i].y);
+        } else {
+          p5.image(imgo, users[i].x, users[i].y);
+        }
+        continue;
+      }
       if (users.length == 2) {
         if (users[i].direction == "w") {
           p5.image(imggb, users[i].x, users[i].y);
@@ -384,6 +452,7 @@ function Room(props) {
         }
       } else if (users.length > 2) {
         if (greenUsed == false) {
+          colorSet[i] = "g";
           if (users[i].direction == "w") {
             p5.image(imggb, users[i].x, users[i].y);
           } else if (users[i].direction == "s") {
@@ -397,6 +466,7 @@ function Room(props) {
           }
           greenUsed = true;
         } else {
+          colorSet[i] = "o";
           if (users[i].direction == "w") {
             p5.image(imgob, users[i].x, users[i].y);
           } else if (users[i].direction == "s") {
@@ -413,6 +483,39 @@ function Room(props) {
       }
     }
   };
+  // const setFalse = () => {
+  //   let idx = users.findIndex((user) => user.id === socket.id);
+  //   if (tempFine) {
+  //     users[idx].quit = false;
+  //   }
+  //   return;
+  // };
+  const leaveRoom = () => {
+    let idx = users.findIndex((user) => user.id === socket.id);
+    if (tempFine) {
+      users[idx].quit = true;
+    }
+    tempFine = false;
+  };
+  useEffect(
+    () => {
+      let idx = users.findIndex((user) => user.id === socket.id);
+      if (users[idx] != undefined) {
+        tempFine = true;
+      }
+      console.log(tempFine);
+      if (users.length > 0) {
+        if (users[idx].quit === true) {
+          // setFalse();
+          // console.log(users[idx].quit);
+          props.history.push(`/`);
+        }
+      }
+    },
+    [draw],
+    [leaveRoom]
+  );
+
   const handleAiToggle = () => {
     if (aiEnabled) {
       setAiEnabled(false);
@@ -484,6 +587,9 @@ function Room(props) {
               preload={preload}
               className="canvas"
             />
+            <button className="leave-room" onClick={(e) => leaveRoom()}>
+              Leave Room
+            </button>
           </div>
           <div>
             <button className="enable-ai" onClick={(e) => handleAiToggle()}>
