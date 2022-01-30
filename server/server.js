@@ -35,6 +35,7 @@ io.on("connection", (socket) => {
       x: 462,
       y: 100,
       direction: null,
+      quit: false,
     });
     const usersInThisRoom = users[data.roomID].filter((id) => id !== socket.id);
     socket.emit("all users", usersInThisRoom);
@@ -65,6 +66,7 @@ io.on("connection", (socket) => {
         socketToPosition[i].x = data.x;
         socketToPosition[i].y = data.y;
         socketToPosition[i].direction = data.direction;
+        socketToPosition[i].quit = data.quit;
         me = socketToPosition[i];
         break;
       }
