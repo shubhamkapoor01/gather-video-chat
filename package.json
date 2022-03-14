@@ -4,7 +4,7 @@
     "start": "node server.js",
     "devStart": "nodemon server.js",
     "build": "cd server && cd client && npm run build",
-    "install-client": "cd server && cd client && npm install",
+    "install-client": "cd server && npm install && cd client && npm install",
     "heroku-postbuild": "npm run install-client && npm run build"
   },
   "dependencies": {
