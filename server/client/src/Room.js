@@ -54,7 +54,7 @@ let tempFine;
   crossorigin="anonymous"
   referrerpolicy="no-referrer"
 ></script>;
-const socket = io.connect("http://localhost:3001");
+const socket = io.connect(process.env.PORT || 3001);
 
 const StyledVideo = styled.video`
   height: 100%;
