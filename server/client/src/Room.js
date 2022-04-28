@@ -206,7 +206,7 @@ function Room(props) {
       return;
     }
 
-    if (faces !== 1) {
+    if (faces === 0) {
       userVideo.current.srcObject.getVideoTracks()[0].enabled = false;
       userVideo.current.srcObject.getAudioTracks()[0].enabled = false;
     } else {
@@ -593,7 +593,7 @@ function Room(props) {
           </div>
           <div>
             <button className="enable-ai" onClick={(e) => handleAiToggle()}>
-              Enable Gesture Recognition
+              Enable Auto Video Controller AI
             </button>
             {aiEnabled ? (
               <Model
